@@ -3,18 +3,21 @@
   assert:
     that: ansible_service_mgr == 'systemd'
     msg: "This module only works with systemd"
+  when: service_mgr | default(ansible_service_mgr) == 'systemd'
 
 - name: Get systemd version
   command: systemctl --version
   changed_when: false
   check_mode: false
   register: __systemd_version
+  when: service_mgr | default(ansible_service_mgr) == 'systemd'
   tags:
     - skip_ansible_lint
 
 - name: Set systemd version fact
   set_fact:
     prometheus_systemd_version: "{{ __systemd_version.stdout_lines[0].split(' ')[-1] }}"
+  when: service_mgr | default(ansible_service_mgr) == 'systemd'
 
 - name: Assert no duplicate config flags
   assert:
